@@ -5,8 +5,10 @@ import HomeStack from './src/components/BottomTab';
 
 export default function App() {
   return (
-    <NavigationContainer ref={navigationRef}>
-      <HomeStack/>
-    </NavigationContainer>
+    <>
+      <NavigationContainer ref={navigationRef}>
+        <HomeStack/>
+      </NavigationContainer>
+    </>
   );
 }

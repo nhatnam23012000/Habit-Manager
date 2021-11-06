@@ -2,9 +2,9 @@ import React, { useRef } from 'react'
 import { View, Image, TouchableOpacity, Animated, Dimensions } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import styled from 'styled-components/native'
 import { Ionicons } from '@expo/vector-icons'
 import * as RootNavigator from '../components/RootNavigator'
+import Onboard from '../components/Onboard'
 import Dashboard from '../screens/Dashboard'
 import Missions from '../screens/Missions'
 import City from '../screens/City'
@@ -177,7 +177,8 @@ export default function HomeStack() {
       screenOptions={{
         headerShown: false
       }}
-      initialRouteName='Home'>
+      initialRouteName='Onboard'>
+      <Stack.Screen name='Onboard' component={Onboard}/>
       <Stack.Screen name='Home' component={BottomTab}/>
       <Stack.Screen name='Create' component={Create}/>
     </Stack.Navigator>
