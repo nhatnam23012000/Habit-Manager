@@ -1,8 +1,9 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View, Image, TouchableOpacity, Animated, Dimensions } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Ionicons } from '@expo/vector-icons'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as RootNavigator from '../components/RootNavigator'
 import Onboard from '../components/Onboard'
 import Dashboard from '../screens/Dashboard'
@@ -172,13 +173,40 @@ function BottomTab() {
 }
 
 export default function HomeStack() {
-  return (
+
+  const [isFirstLaunch, setIsFirstLaunch] = useState(null)
+
+  useEffect(() => {
+    AsyncStorage.getItem('alreadyLaunched').then(value => {
+      if (value === null) {
+        AsyncStorage.setItem('alreadyLaunched', 'true')
+        setIsFirstLaunch(true)
+      } else {
+        setIsFirstLaunch(false)
+      }
+    })
+  },[])
+
+  if (isFirstLaunch === null) {
+    return null
+  } else if (isFirstLaunch === true) {
+    return (
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false
+        }}
+        initialRouteName='Onboard'>
+        <Stack.Screen name='Onboard' component={Onboard}/>
+        <Stack.Screen name='Home' component={BottomTab}/>
+        <Stack.Screen name='Create' component={Create}/>
+      </Stack.Navigator>
+    )
+  } else return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false
       }}
-      initialRouteName='Onboard'>
-      <Stack.Screen name='Onboard' component={Onboard}/>
+      initialRouteName='Home'>
       <Stack.Screen name='Home' component={BottomTab}/>
       <Stack.Screen name='Create' component={Create}/>
     </Stack.Navigator>

@@ -1,8 +1,10 @@
-import React from 'react'
+import React, {useContext, useEffect} from 'react'
 import { View, Text, Image } from 'react-native'
 import Onboarding from 'react-native-onboarding-swiper'
 
+
 const Onboard = ({navigation}) => {
+
   return (
     <Onboarding
       onSkip={() => navigation.replace('Home')}
@@ -23,7 +25,7 @@ const Onboard = ({navigation}) => {
           }
         ]
       }
-    />
+    /> 
   )
 }
 
