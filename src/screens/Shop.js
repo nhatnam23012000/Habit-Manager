@@ -1,12 +1,14 @@
 import React, {useState, useEffect} from 'react'
-import { TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
+import { TouchableOpacity, StyleSheet, Dimensions, FlatList } from 'react-native'
 import styled from 'styled-components/native'
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Modal from 'react-native-modalbox'
-import ListHabit from './component/listHabit'
-import {CompletedMission5Streak, CompletedMissionMonday} from './component/modalBoxMission'
+import house from '../../assets/house1.png'
+import cafe from '../../assets/cafe.png'
+import office1 from '../../assets/office1.png'
+import office2 from '../../assets/office2.png'
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -19,7 +21,7 @@ const Container = styled.View`
 
 const TopSections = styled.View`
   background-color: #034C8C;
-  height: 30%;
+  height: 33%;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
   width: 100%;
@@ -53,7 +55,7 @@ const UserInfo = styled.View`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 60px;
 `
 
 const ChartInfo = styled.View`
@@ -62,7 +64,7 @@ const ChartInfo = styled.View`
   align-items: center;
   justify-content: space-evenly;
   width: 200px;
-  margin-top: 20px;
+  margin-top: 60px;
 `
 
 const CityInfo = styled.View``
@@ -73,11 +75,6 @@ const CityNameContainer = styled.View`
   display: flex;
   flex-direction: row;
   margin-top: 20px;
-`
-
-const HabitContainer = styled.View`
-  margin-top: 10px;
-  height: 440px;
 `
 
 const ModalContainer = styled.View`
@@ -104,7 +101,60 @@ const ConfirmChange = styled.TouchableOpacity`
   margin-top: 10px;
 `
 
-export default function Dashboard({navigation}) {
+const BackBtn = styled.TouchableOpacity`
+  position: absolute;
+  top: 30px;
+  left: 20px;
+`
+
+const ShopTitle = styled.Text`
+  font-size: 20px;
+  font-family: 'OpenSans_600SemiBold';
+  color: #94CEF2;
+  position: absolute;
+  top: 30px;
+  left: 45%;
+`
+
+const ShopItemContainer = styled.TouchableOpacity`
+  width: 150px;
+  height: 150px;
+  border: 2px solid #234586;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px;
+  opacity: ${props => (props.disabled===true) ? 0.5 : 1};
+`
+
+const ImageContainer = styled.Image`
+  max-width: 100px;
+  max-height: 80px;
+  opacity: ${props => (props.disabled===true) ? 0.5 : 1};
+`
+
+const ItemTitle = styled.Text`
+  font-family: 'OpenSans_600SemiBold';
+  font-size: 14px;
+  color: #94CEF2;
+  opacity: ${props => (props.disabled===true) ? 0.5 : 1};
+`
+
+const CostContainer = styled.View`
+  display: flex;
+  flex-direction: row;
+  opacity: ${props => (props.disabled===true) ? 0.5 : 1};
+`
+
+const CostText = styled.Text`
+  font-family: 'OpenSans_600SemiBold';
+  font-size: 24px;
+  color: #94CEF2;
+  opacity: ${props => (props.disabled===true) ? 0.5 : 1};
+`
+
+const Shop = ({navigation}) => {
   const [image, setImage] = useState(null) 
   const [username, setUsername] = useState()
   const [cityName, setCityName] = useState()
@@ -114,11 +164,9 @@ export default function Dashboard({navigation}) {
   const [money, setMoney] = useState(null)
   const [isUserNameModalVisible, setIsUserNameModalVisible] = useState(false)
   const [isCityNameModalVisible, setIsCityNameModalVisible] = useState(false)
-  const [complete1, setComplete1] = useState(false)
-  const [complete2, setComplete2] = useState(false)
   const [notifySuccess, setNotifySuccess] = useState(false)
   const [notifyError, setNotifyError] = useState(false)
-  
+
   useEffect(() => {
     AsyncStorage.getItem('userName').then(value => {
       if (value !== null) {
@@ -190,14 +238,6 @@ export default function Dashboard({navigation}) {
     setIsCityNameModalVisible(false)
   }
 
-  const updateMoney = (val) => {
-    AsyncStorage.getItem('money').then((value) => {
-      val += parseInt(value, 10)
-      setMoney(val)
-      AsyncStorage.setItem('money', JSON.stringify(val))
-    })
-  }
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -212,54 +252,117 @@ export default function Dashboard({navigation}) {
     }
   }
 
+  const buyItem = (cost) => {
+    if (money >= cost) {
+      setNotifySuccess(true)
+      AsyncStorage.setItem('cityLvl', JSON.stringify(parseInt(cityLvl) + 1)).then(() => {
+        AsyncStorage.getItem('cityLvl').then((value) => {
+          setCityLvl(value)
+        })
+      })
+      AsyncStorage.setItem('money', JSON.stringify(money - cost)).then(() => {
+        AsyncStorage.getItem('money').then((value) => {
+          setMoney(value)
+        })
+      })
+    } else{
+      setNotifyError(true)
+    }
+  }
+
+  const shopItem = [
+    {
+      key: 0,
+      name: 'Cottage',
+      cost: 100,
+      image: house,
+      require: 0
+    },
+    {
+      key: 1,
+      name: 'Restaurant',
+      cost: 400,
+      image: cafe,
+      require: 1
+    },
+    {
+      key: 2,
+      name: 'Small Office',
+      cost: 800,
+      image: office1,
+      require: 2
+    },
+    {
+      key: 3,
+      name: 'Business center',
+      cost: 1000,
+      image: office2,
+      require: 3
+    }
+  ]
+
+  const renderItemInShop =  ({item}) => (
+    <ShopItemContainer
+      disabled={(cityLvl == item.require) ? false : true}
+      onPress={()=>buyItem(item.cost)}
+    >
+      <ImageContainer disabled={(cityLvl >= item.require) ? false : true} source={item.image}/>
+      <ItemTitle disabled={(cityLvl >= item.require) ? false : true}>{item.name}</ItemTitle>
+      <CostContainer disabled={(cityLvl >= item.require) ? false : true}>
+        <CostText>{item.cost}</CostText>
+        <FontAwesome5 style={styles.alignIcon} name='money-bill' size={20} color='#94CEF2'/>
+      </CostContainer>
+    </ShopItemContainer>
+  )
+
   return (
     <Container>
-      <TopSections>
-        <UserInfo>
-          <TouchableOpacity onPress={showUserNamePopup}>
-            <Info>{(username) ? username : 'username'}</Info>
+
+    <TopSections>
+      <BackBtn onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={35} color={'#94CEF2'}/>
+      </BackBtn>
+      <ShopTitle>Shop</ShopTitle>
+      <UserInfo>
+        <TouchableOpacity onPress={showUserNamePopup}>
+          <Info>{(username) ? username : 'username'}</Info>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={pickImage}>
+          {
+            (image) ? <ProfileImage source={{uri: image}}/> : <ProfileImage source={require('../../assets/test-img.png')} />
+          }
+        </TouchableOpacity>
+        <CityNameContainer>
+          <TouchableOpacity onPress={showCityNamePopup}>
+            <Info>{(cityName) ? cityName : 'City Name'} </Info>
           </TouchableOpacity>
-          <TouchableOpacity onPress={pickImage}>
-            {
-              (image) ? <ProfileImage source={{uri: image}}/> : <ProfileImage source={require('../../assets/test-img.png')} />
-            }
-          </TouchableOpacity>
-          <CityNameContainer>
-            <TouchableOpacity onPress={showCityNamePopup}>
-              <Info>{(cityName) ? cityName : 'City Name'} </Info>
-            </TouchableOpacity>
-              <FontAwesome5 name='city' size={20} color='#94CEF2'/>
-          </CityNameContainer>
-        </UserInfo>
-        <ChartInfo>
-            <CityInfo>
-              <Info>Streak: {(streak) ?streak : '0'}</Info>
-              <Info>City Level: {(cityLvl) ?cityLvl : '0'}</Info>
-              <Info>Money: {(money) ?money : '0'}</Info>
-            </CityInfo>
-            <InfoIcon>
-              <Ionicons style={styles.styledIcon} name='star' size={20} color='#94CEF2'/>
-              <Ionicons style={styles.styledIcon} name='business' size={20} color='#94CEF2'/>
-              <FontAwesome5 style={styles.styledIcon} name='money-bill' size={20} color='#94CEF2'/>
-            </InfoIcon>
-        </ChartInfo>
-      </TopSections>
-      <ContentSections>
-        <Info>
-          Today's habit
-        </Info>
-        <HabitContainer>
-            <ListHabit
-              setComplete1={setComplete1}
-              setComplete2={setComplete2}
-              updateMoney={updateMoney}
-              setNotifySuccess={setNotifySuccess}
-              setNotifyError={setNotifyError}
-              navigation={navigation}
-            ></ListHabit>
-        </HabitContainer>
-      </ContentSections>
-      <Modal
+            <FontAwesome5 name='city' size={20} color='#94CEF2'/>
+        </CityNameContainer>
+      </UserInfo>
+      <ChartInfo>
+          <CityInfo>
+            <Info>Streak: {(streak) ?streak : '0'}</Info>
+            <Info>City Level: {(cityLvl) ?cityLvl : '0'}</Info>
+            <Info>Money: {(money) ?money : '0'}</Info>
+          </CityInfo>
+          <InfoIcon>
+            <Ionicons style={styles.styledIcon} name='star' size={20} color='#94CEF2'/>
+            <Ionicons style={styles.styledIcon} name='business' size={20} color='#94CEF2'/>
+            <FontAwesome5 style={styles.styledIcon} name='money-bill' size={20} color='#94CEF2'/>
+          </InfoIcon>
+      </ChartInfo>
+    </TopSections>
+    <ContentSections>
+      <FlatList
+        data={shopItem}
+        keyExtractor={item=> String(item.key)}
+        numColumns={2}
+        renderItem={renderItemInShop}
+      >
+
+      </FlatList>
+    </ContentSections>
+    <Modal
         style={styles.styledModal}
         isOpen={isUserNameModalVisible}
         position='center'
@@ -297,8 +400,11 @@ export default function Dashboard({navigation}) {
         position='center'
       >
         <ModalContainer>
-          <Info style={styles.title}>Congratulations! You get 15$, keep it up!</Info>
-          <ConfirmChange onPress={() => setNotifySuccess(false)}>
+          <Info style={styles.title}>You got a new building! Congratulations!</Info>
+          <ConfirmChange onPress={() => {
+              setNotifySuccess(false)
+              navigation.goBack()
+            }}>
             <Info style={styles.styledText}>Confirm</Info>
           </ConfirmChange>
         </ModalContainer>
@@ -310,20 +416,26 @@ export default function Dashboard({navigation}) {
         position='center'
       >
         <ModalContainer>
-          <Info style={styles.title}>You can't claim it now</Info>
+          <Info style={styles.title}>You can't buy this building</Info>
           <ConfirmChange onPress={() => setNotifyError(false)}>
             <Info style={styles.styledText}>Confirm</Info>
           </ConfirmChange>
         </ModalContainer>
       </Modal>
-      
-      <CompletedMission5Streak openVar={complete1} changeOpenVar={setComplete1} />
-      <CompletedMissionMonday openVar={complete2} changeOpenVar={setComplete2} />
+
     </Container>
   )
 }
 
+export default Shop
+
 const styles = StyleSheet.create({
+
+  alignIcon: {
+    marginTop: 5,
+    marginLeft: 5
+  },
+
   styledIcon: {
     marginBottom: 20
   },

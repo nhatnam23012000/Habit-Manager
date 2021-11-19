@@ -11,6 +11,9 @@ import Missions from '../screens/Missions'
 import City from '../screens/City'
 import Calendar from '../screens/Calendar'
 import Create from '../screens/Create'
+import Edit from '../screens/Edit'
+import Shop from '../screens/Shop'
+import Detail from '../screens/Detail'
 import Plus from '../../assets/plus.png'
 
 const Tab = createBottomTabNavigator()
@@ -199,6 +202,9 @@ export default function HomeStack() {
         <Stack.Screen name='Onboard' component={Onboard}/>
         <Stack.Screen name='Home' component={BottomTab}/>
         <Stack.Screen name='Create' component={Create}/>
+        <Stack.Screen name='Edit' component={Edit}/>
+        <Stack.Screen name='Shop' component={Shop}/>
+        <Stack.Screen name='Detail' component={Detail}/>
       </Stack.Navigator>
     )
   } else return (
@@ -209,6 +215,9 @@ export default function HomeStack() {
       initialRouteName='Home'>
       <Stack.Screen name='Home' component={BottomTab}/>
       <Stack.Screen name='Create' component={Create}/>
+      <Stack.Screen name='Edit' component={Edit}/>
+      <Stack.Screen name='Shop' component={Shop}/>
+      <Stack.Screen name='Detail' component={Detail}/>
     </Stack.Navigator>
   )
 }
